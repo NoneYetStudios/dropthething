@@ -1,0 +1,25 @@
+# Drop The Thing - Apache Configuration for dropthething.stabthefinger.com
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Block access to hidden files and SQLite database files
+    RewriteRule (^|/)\.(?!well-known) - [F]
+    RewriteRule \.(db|sql|sqlite|sqlite3)$ - [F]
+
+    # 2. Route all API requests to the PHP backend (works in both /drop/api/* and /api/*)
+    RewriteRule ^(?:drop/)?api/(.*)$ api/index.php?__route__=$1 [QSA,L]
+
+    # 3. Allow real static files and folders to serve directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 4. Fallback to index.html for Single Page App & share links (/drop?object=piano&score=842)
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType image/svg+xml .svg
+    AddType audio/wav .wav
+    AddType application/json .json
+</IfModule>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drop The Thing — Pointless Gravity & Chaos Toy</title>
+  <meta name="description" content="Drop pianos, watermelons, anvils, rubber ducks, and giant eggs from the top of the screen and watch them bounce, splatter, shatter, or explode!" />
+  <link rel="icon" type="image/svg+xml" href="assets/objects/modern/anvil.svg" />
+  <link rel="stylesheet" href="css/styles.css?v=3" />
+</head>
+<body class="theme-modern">
+
+  <!-- Retro Mode CRT Scanline & Vignette Overlay -->
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <!-- Top Navigation & Mode Toggle Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#top" id="brand-link" class="brand-wrap">
+        <div class="brand-logo" aria-hidden="true">☄️</div>
+        <div>
+          <div class="brand-title">DROP THE THING</div>
+          <div class="brand-subtitle">100% Pointless Gravity &amp; Chaos Simulator</div>
+        </div>
+      </a>
+
+      <div class="header-controls">
+        <!-- Modern Mode + Retro Mode Toggle -->
+        <div class="mode-toggle-group" role="group" aria-label="Visual Mode Toggle">
+          <button type="button" id="btn-mode-modern" data-mode="modern" class="mode-btn active">
+            ✨ Modern Mode
+          </button>
+          <button type="button" id="btn-mode-retro" data-mode="retro" class="mode-btn">
+            👾 Retro Mode
+          </button>
+        </div>
+
+        <button type="button" id="btn-sound-toggle" class="btn" aria-label="Toggle Sound">
+          🔊 Sound: ON
+        </button>
+
+        <button type="button" id="btn-random-drop" class="btn btn-primary">
+          🎲 Random Thing
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Micro-Taunts Ticker & Shared Link Banner -->
+  <section class="taunt-banner" aria-live="polite">
+    <div class="taunt-pill">
+      <div class="taunt-quote">
+        <span aria-hidden="true">📣</span>
+        <span id="taunt-text">“Nice drop, gravity champion.”</span>
+      </div>
+      <div style="font-size: 0.78rem; font-weight: 800; opacity: 0.85;">
+        Drops this session: <span id="session-drop-count">0</span> • Best Chaos: <span id="session-best-score">0</span>
+      </div>
+    </div>
+
+    <!-- Shown when visiting a shared URL like /drop?object=piano&score=842 -->
+    <div id="shared-challenge-banner" class="shared-challenge-banner hidden">
+      <div id="shared-challenge-text">
+        🎯 Incoming Challenge: Someone dropped a PIANO for 842 CHAOS!
+      </div>
+      <button type="button" id="btn-accept-challenge" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
+        💥 Drop It Now!
+      </button>
+    </div>
+  </section>
+
+  <!-- Single-Page 3-Column Workspace -->
+  <main class="main-grid">
+
+    <!-- ====================================================================
+         LEFT COLUMN: PAGED OBJECT CATALOG (12 PER PAGE) & INSPECTOR
+         ==================================================================== -->
+    <section class="card-panel" aria-label="Object Picker">
+      <div class="panel-header">
+        <h2 class="panel-title">📦 1. Pick The Thing</h2>
+        <button type="button" id="btn-shuffle-object" class="btn btn-primary" style="padding: 0.32rem 0.7rem; font-size: 0.76rem;">
+          🎲 Random Thing
+        </button>
+      </div>
+
+      <!-- 12 Objects Per Page Grid -->
+      <div id="object-picker-grid" class="object-picker-grid" role="listbox" aria-label="Droppable Objects Page"></div>
+
+      <!-- Paging Controls: Previous Page, Page X of Y, Next Page -->
+      <div class="catalog-pager" aria-label="Object Catalog Pagination">
+        <button type="button" id="btn-prev-page" class="btn pager-btn">
+          ◀ Previous Page
+        </button>
+        <span id="page-indicator" class="page-indicator-text">
+          Page 1 of 9
+        </span>
+        <button type="button" id="btn-next-page" class="btn pager-btn">
+          Next Page ▶
+        </button>
+      </div>
+
+      <!-- Selected Object Stats & Multi-Effect Inspector -->
+      <div id="selected-inspector" class="selected-inspector">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+          <strong id="inspector-name" style="font-size: 0.95rem;">🎹 Grand Piano</strong>
+          <div id="inspector-effects-list" style="display: flex; flex-wrap: wrap; gap: 4px;">
+            <span id="inspector-effect-badge" class="effect-badge effect-shatter">SHATTER</span>
+          </div>
+        </div>
+        <p id="inspector-tagline" style="font-size: 0.76rem; color: var(--text-muted); font-weight: 600;">
+          88 keys of pure gravitational regret.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.2rem; font-size: 0.74rem; font-weight: 800;">
+          <span class="stat-chip">⚖️ Weight: <span id="inspector-weight">450 lbs</span> (×<span id="inspector-weight-mod">2.5</span>)</span>
+          <span class="stat-chip">🥚 Fragility: <span id="inspector-fragility">65</span></span>
+          <span class="stat-chip">💥 Break Bonus: +<span id="inspector-break-bonus">220</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         CENTER COLUMN: TALL VERTICAL DROP ZONE & PHYSICS SIMULATION
+         ==================================================================== -->
+    <section class="card-panel drop-zone-wrapper" aria-label="Drop Zone">
+      <div class="drop-controls-bar">
+        <h2 class="panel-title">⬇️ 2. The Drop Zone</h2>
+        <div style="display: flex; align-items: center; gap: 0.45rem;">
+          <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 800; cursor: pointer;">
+            <input type="checkbox" id="chk-slam-boost" style="width: 16px; height: 16px; accent-color: #ef4444;" />
+            🔥 Turbo Slam
+          </label>
+          <button type="button" id="btn-clean-floor" class="btn" style="padding: 0.3rem 0.65rem; font-size: 0.74rem;" title="Wipe splatters and debris">
+            🧹 Mop Floor
+          </button>
+        </div>
+      </div>
+
+      <!-- Primary Giant Drop Button -->
+      <button type="button" id="btn-drop-main" class="btn-drop-giant">
+        ☄️ DROP THE PIANO! (SPACE)
+      </button>
+
+      <!-- Tall Vertical Physics Canvas -->
+      <div class="drop-canvas-container" id="drop-canvas-container" title="Click anywhere in the Drop Zone to drop!">
+        <canvas id="drop-canvas" width="480" height="580"></canvas>
+        <div class="drop-zone-overlay-hint" id="impact-telemetry-pill">
+          Ready at Top Center • Click or Press Space
+        </div>
+      </div>
+
+      <!-- Active Chaos Effects Panel (Positioned below the playing field so the field never jumps) -->
+      <div id="active-effects-panel" class="active-effects-panel hidden" aria-live="polite">
+        <div class="active-effects-header">ACTIVE CHAOS EFFECTS</div>
+        <div id="active-effects-list" class="active-effects-list"></div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RIGHT COLUMN: BIG GOOFY SCORE, SHARE BUTTON, NICKNAME & LEADERBOARD
+         ==================================================================== -->
+    <section class="card-panel col-leaderboard" aria-label="Chaos Score and Leaderboard">
+      <div class="panel-header">
+        <h2 class="panel-title">💥 3. Chaos Factor &amp; Hall of Shame</h2>
+        <span id="score-object-badge" class="stat-chip">Waiting for drop...</span>
+      </div>
+
+      <!-- Big Goofy Score Display -->
+      <div class="score-hud-box">
+        <div class="score-label">TOTAL CHAOS FACTOR</div>
+        <div id="goofy-score-display" class="goofy-score-number">0</div>
+        <div id="chaos-formula-breakdown" class="chaos-breakdown-pill">
+          Chaos = (Impact × Weight Mod) + Breakage Bonus + Special Effect Bonus
+        </div>
+        <div id="breakage-status-line" style="font-size: 0.75rem; font-weight: 800; margin-top: 0.4rem;">
+          Drop an object to test if Fragility &lt; Impact Force!
+        </div>
+      </div>
+
+      <!-- Share Button & Encoded URL Box -->
+      <div class="share-box">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+          <span style="font-size: 0.78rem; font-weight: 800;">🔗 Share This Drop</span>
+          <button type="button" id="btn-share-drop" class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.76rem;">
+            📤 Share URL
+          </button>
+        </div>
+        <div id="share-url-preview" class="share-url-preview">/drop?object=piano&amp;score=0</div>
+        <div id="share-feedback" class="feedback-msg feedback-ok hidden"></div>
+      </div>
+
+      <!-- Nickname System (Same Clean, Safe, Filtered Rules as Lemonade Stand) -->
+      <div class="nickname-box">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+          <label for="nickname-input" style="font-size: 0.78rem; font-weight: 800;">
+            🏷️ Your Nickname (3–18 chars)
+          </label>
+          <button type="button" id="btn-random-nickname" class="btn" style="padding: 0.2rem 0.55rem; font-size: 0.7rem;">
+            🎲 Random Name
+          </button>
+        </div>
+        <div style="display: flex; gap: 0.45rem;">
+          <input
+            type="text"
+            id="nickname-input"
+            class="input-text"
+            minlength="3"
+            maxlength="18"
+            pattern="^[A-Za-z0-9_]{3,18}$"
+            placeholder="e.g. GravityChamp"
+            autocomplete="off"
+          />
+          <button type="button" id="btn-submit-score" class="btn btn-primary" style="white-space: nowrap;">
+            🏆 Post Score
+          </button>
+        </div>
+      </div>
+
+      <!-- Top 50 Chaos Scores Leaderboard -->
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem;">
+          <strong style="font-size: 0.84rem;">🏆 Top 50 Chaos Leaderboard</strong>
+          <button type="button" id="btn-refresh-leaderboard" class="btn" style="padding: 0.2rem 0.55rem; font-size: 0.7rem;">
+            ↻ Refresh
+          </button>
+        </div>
+
+        <div class="leaderboard-scroll">
+          <table class="leaderboard-table" aria-label="Top 50 Chaos Scores">
+            <thead>
+              <tr>
+                <th style="width: 42px;">#</th>
+                <th>Nickname</th>
+                <th>Object</th>
+                <th style="text-align: right;">Chaos</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <tr>
+                <td colspan="4" style="text-align: center; padding: 1.2rem;">Loading Top 50 Chaos Scores...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    DROP THE THING • Deployed at <strong>dropthething.stabthefinger.com</strong> • Built for maximum pointless joy.
+  </footer>
+
+  <!-- Scripts (Zero External Dependencies) -->
+  <script src="js/profanityFilter.js?v=5"></script>
+  <script src="js/objects.js?v=5"></script>
+  <script src="js/sound.js?v=5"></script>
+  <script src="js/physics.js?v=5"></script>
+  <script src="js/app.js?v=5"></script>
+</body>
+</html>

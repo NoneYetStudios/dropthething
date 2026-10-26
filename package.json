@@ -1,0 +1,28 @@
+{
+  "name": "drop-the-thing",
+  "version": "1.0.0",
+  "description": "Drop The Thing — A humorous physics-based web toy where users drop random objects and watch them bounce, splatter, shatter, or explode.",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "init-db": "node backend/scripts/initDb.js",
+    "seed": "node backend/scripts/seedDb.js",
+    "build": "node scripts/build.js",
+    "test": "node scripts/build.js && node tests/runTests.js"
+  },
+  "keywords": [
+    "drop-the-thing",
+    "physics-toy",
+    "chaos-score",
+    "retro-mode",
+    "pixel-art",
+    "sqlite"
+  ],
+  "author": "StabTheFinger Arcade",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {}
+}

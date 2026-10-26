@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: drop-the-thing-api
+    runtime: docker
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_PATH
+        value: /data/dropthething.db
+    disk:
+      name: drop-sqlite-disk
+      mountPath: /data
+      sizeGB: 1

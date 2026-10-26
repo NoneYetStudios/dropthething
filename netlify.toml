@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "frontend"
+
+[[redirects]]
+  from = "/drop"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/drop/*"
+  to = "/:splat"
+  status = 200
