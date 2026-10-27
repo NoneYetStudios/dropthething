@@ -85,3 +85,8 @@ Then open **`http://localhost:3000`** in your browser!
 2. Run `PORT=3088 npm start` (or manage with PM2).
 3. Reverse proxy `dropthething.stabthefinger.com` via Nginx or Caddy to port `3088`.
 
+---
+
+## License
+
+MIT License © 2026 None Yet Studios
